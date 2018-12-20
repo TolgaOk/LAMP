@@ -1,0 +1,8 @@
+*.pyc
+/LAMP.egg-info
+/dist
+/build
+*.png
+*.jpg
+*.txt
+*.json
