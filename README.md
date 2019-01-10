@@ -1,6 +1,7 @@
 # Logging and Monitoring Package
+### **Under development!**
 
-Offers a simple custom python logging class and Handlers for visualization via Visdom and Matplotlib. You can use additional logger functions to log your data. We support:
+Lamp offers a simple custom python logging class and Handlers for visualization via Visdom and Matplotlib. You can use additional logger functions to log your data on top of the standard python logging functionality. We support:
 
 - [x] Scalar
 - [x] Image
@@ -37,13 +38,18 @@ my_logger.histogram(gauss_vector, win="Normal distribution")
 ```
 ![image](https://github.com/TolgaOk/LAMP/blob/master/doc/viz-examle.png)
 
-Lamp also provides offline plotting via Matplotlib. It automaticly plots the logged data from the buffer just before the shutdown.
+Lamp also provides offline plotting via Matplotlib. It automatically plots the logged data from the buffer just before the shutdown.
 
-General use case of Lamp can be seen below.
+A general use case of Lamp can be seen below.
 
 ![image](https://github.com/TolgaOk/LAMP/blob/master/doc/doc-image-1.png)
 
 
+- - -
+## Requirements
+- Visdom
+- Matplotlib
+- Pytorch
 
 - - -
 ## Install
