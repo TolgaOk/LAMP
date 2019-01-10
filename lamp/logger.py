@@ -52,12 +52,12 @@ class DataLogger(logging.getLoggerClass()):
             else:
                 raise ValueError("Image shape dim: {}D, But expected 2D, 3D or 4D!".format(len(image.shape)))
 
-    def histogram(self, tensor, index=None, env="main", win=None, **kwargs):
+    def histogram(self, tensor, env="main", win=None, **kwargs):
         level = logging.INFO
         if self.isEnabledFor(level):
             if not isinstance(tensor, (torch.Tensor, np.ndarray)):
                 raise TypeError("Tensor type: {}, but torch or numpy array is expected!".format(type(tensor)))
-            plot_info = dict(env=env, win=win, index=index)
+            plot_info = dict(env=env, win=win)
             self._log(level, "Histogram logged!", None, extra=dict(
                 plot_info=plot_info,
                 data=tensor,

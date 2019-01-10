@@ -181,7 +181,7 @@ class VisdomHistHandler(VisdomHandlers):
 
     def __init__(self, level=logging.NOTSET, overwrite_window=True, ip_addr="localhost", port=8097):
         super().__init__(level=level, overwrite_window=overwrite_window, ip_addr=ip_addr, port=port)
-        self.addFilter(PlotFilter("historgram"))
+        self.addFilter(PlotFilter("histogram"))
         self._default_win_name = keydefaultdict(
                             lambda env: self.get_available_name("histogram-1", env)
                         )
