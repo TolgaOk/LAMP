@@ -5,10 +5,12 @@ from collections import defaultdict
 from .logger import PlotFilter
 import numpy as np
 
+
 class MatplotHandler(logging.Handler):
 
     figure_ind = 0
     handler_counter = 0
+
     def __init__(self, capacity, flushOnClose=True):
         super().__init__()
         self.capacity = capacity
@@ -30,7 +32,7 @@ class MatplotHandler(logging.Handler):
         try:
             if self.flushOnClose:
                 MatplotHandler.handler_counter -= 1
-            
+
             if MatplotHandler.handler_counter == 0:
                 plt.show()
         finally:
@@ -39,6 +41,7 @@ class MatplotHandler(logging.Handler):
                 logging.Handler.close(self)
             finally:
                 self.release()
+
 
 class MatplotScalarHandler(MatplotHandler):
 
@@ -62,8 +65,9 @@ class MatplotScalarHandler(MatplotHandler):
             for trace, data in traces.items():
                 plt.plot(data, **self.plot_kwargs, label=trace)
             plt.legend()
-        #TODO: Better legends.
-    
+        # TODO: Better legends.
+
+
 class MatplotImageHandler(MatplotHandler):
 
     def __init__(self, capacity=None, flushOnClose=True, **kwargs):
@@ -87,20 +91,20 @@ class MatplotImageHandler(MatplotHandler):
                     images = images.squeeze(1)
             elif len(images.shape) in (3, 2):
                 images = images[np.newaxis, ...]
-            
+
             if len(images.shape) == 4:
                 images = np.transpose(images, (0, 2, 3, 1))
 
             env = record.plot_info["env"]
-            fig= plt.figure(MatplotHandler.figure_ind)
+            fig = plt.figure(MatplotHandler.figure_ind)
             plt.title(env)
             plt.box(False)
             plt.gca().axes.get_yaxis().set_visible(False)
             plt.gca().axes.get_xaxis().set_visible(False)
-            grid = ImageGrid(fig, 111,  
-                        nrows_ncols=(nrow, ncol), 
-                        axes_pad=0.01, 
-                    )
+            grid = ImageGrid(fig, 111,
+                             nrows_ncols=(nrow, ncol),
+                             axes_pad=0.01,
+                             )
             for i in range(nimg):
                 try:
                     cmap = record.plot_info["cmap"].lower()

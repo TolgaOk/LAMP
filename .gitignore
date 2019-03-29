@@ -2,6 +2,8 @@
 /LAMP.egg-info
 /dist
 /build
-*.jpg
+.vscode
+.mypy_cache
+*.jpeg
 *.txt
 *.json

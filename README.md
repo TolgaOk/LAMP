@@ -10,7 +10,7 @@ Lamp offers a simple custom python logging class and Handlers for visualization 
 - [x] Hyperparameter
 - [ ] Scatter
   
-In addition to logging Lamp includes Visdom and Matplotlib handlers. Which provide online and offline visualization options for logged data.
+In addition to logging, Lamp includes Visdom and Matplotlib handlers. Which provide online and offline visualization options for logged data.
 
 ### Example:
 ``` Python
@@ -54,5 +54,5 @@ A general use case of Lamp can be seen below.
 - - -
 ## Install
 ``` Python
- pip install -e
+ pip install -e .
 ```
