@@ -9,7 +9,8 @@ Lamp offers a simple custom python logging class and Handlers for visualization 
 - [x] Video
 - [x] Hyperparameter
 - [ ] Scatter
-  
+- [ ] 3D histogram
+
 In addition to logging, Lamp includes Visdom and Matplotlib handlers. Which provide online and offline visualization options for logged data.
 
 ### Example:

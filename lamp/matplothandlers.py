@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 import logging
 from collections import defaultdict
-from .logger import PlotFilter
+from lamp.logger import  DataLogger
+from lamp.filters import DataLogFilter
 import numpy as np
 
 
@@ -50,7 +51,7 @@ class MatplotScalarHandler(MatplotHandler):
         self.capacity = capacity
         self.plot_kwargs = kwargs
         self.buffer = defaultdict(lambda: defaultdict(list))
-        self.addFilter(PlotFilter("scalar"))
+        self.addFilter(DataLogFilter(DataLogger.PlotType.SCALAR))
 
     def emit(self, record):
         env = record.plot_info["env"]
@@ -74,9 +75,9 @@ class MatplotImageHandler(MatplotHandler):
         super().__init__(capacity, flushOnClose=flushOnClose)
         self.capacity = capacity
         self.plot_kwargs = kwargs
-        self.addFilter(PlotFilter("image"))
+        self.addFilter(DataLogFilter(DataLogger.PlotType.IMAGE))
 
-    def emit(self, record):
+    def emit(self, record): 
         self.buffer.append(record)
 
     def flush(self):

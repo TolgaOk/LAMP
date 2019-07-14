@@ -1,20 +1,18 @@
 """
 Logger class for additional data logging.
-    
-DataLogger extends the default logger class by including 
+
+DataLogger extends the default logger class by including
 some data logging options such as: scalar, image, histogram,
 hyperparameter and video.
 """
 
 import logging
+from collections import defaultdict
+from enum import Enum, auto
 import torch
 import numpy as np
-from collections import defaultdict
 
 # [ ] TODO: Log closed windows from previous runs!
-# [x] TODO: Auto increment index for scalar plot!
-# [x] TODO: If default named environment exit and env argument is None, change
-#  default!
 # [ ] TODO: Add more plotting arguments!
 # [ ] TODO: Add default configuration with all plotting handlers!
 # [ ] TODO: Save plots at shutdown if path is given!
@@ -22,7 +20,7 @@ from collections import defaultdict
 # [ ] TODO: Make filters complete, check for all necessary attributes!
 
 
-class DataLogger(logging.getLoggerClass()):
+class DataLogger(logging.Logger):
     """
     Support additional logging methods over base logging class.
 
@@ -30,6 +28,19 @@ class DataLogger(logging.getLoggerClass()):
     and video. Each method logs information about the plotting
     either on Visdom or Matplotlib.
     """
+    class PlotType(Enum):
+        SCALAR = auto()
+        IMAGE = auto()
+        HISTOGRAM = auto()
+        HYPERPARAM = auto()
+        VIDEO = auto()
+
+    class DataLog(object):
+        def __init__(self):
+            pass
+
+    def __init__(self, name):
+        super().__init__(name)
 
     def scalar(self, value, index=None, env="main",
                win=None, trace="trace-1", **kwargs):
@@ -51,7 +62,7 @@ class DataLogger(logging.getLoggerClass()):
                       extra=dict(
                           plot_info=plot_info,
                           data=value,
-                          recordtype="scalar")
+                          recordtype=DataLogger.PlotType.SCALAR)
                       )
 
     def image(self, image, env="main", win=None, cmap="Viridis", **kwargs):
@@ -81,7 +92,7 @@ class DataLogger(logging.getLoggerClass()):
                           extra=dict(
                               plot_info=plot_info,
                               data=image,
-                              recordtype="image")
+                              recordtype=DataLogger.PlotType.IMAGE)
                           )
             elif len(image.shape) == 2:
                 plot_info = dict(env=env, win=win, cmap=cmap)
@@ -89,8 +100,7 @@ class DataLogger(logging.getLoggerClass()):
                           extra=dict(
                               plot_info=plot_info,
                               data=image,
-                              recordtype="image"
-                          )
+                              recordtype=DataLogger.PlotType.IMAGE)
                           )
             elif len(image.shape) == 4:
                 plot_info = dict(env=env, win=win, cmap=cmap)
@@ -98,7 +108,7 @@ class DataLogger(logging.getLoggerClass()):
                           extra=dict(
                               plot_info=plot_info,
                               data=image,
-                              recordtype="image")
+                              recordtype=DataLogger.PlotType.IMAGE)
                           )
             else:
                 raise ValueError(
@@ -119,7 +129,7 @@ class DataLogger(logging.getLoggerClass()):
         if self.isEnabledFor(level):
             if not isinstance(array, (torch.Tensor, np.ndarray)):
                 raise TypeError(
-                    """Tensor type: {}, but torch or numpy array is 
+                    """Tensor type: {}, but torch or numpy array is
                     expected!""".format(type(array))
                 )
             plot_info = dict(env=env, win=win)
@@ -127,7 +137,7 @@ class DataLogger(logging.getLoggerClass()):
                       extra=dict(
                           plot_info=plot_info,
                           data=array,
-                          recordtype="histogram")
+                          recordtype=DataLogger.PlotType.HISTOGRAM)
                       )
 
     def hyperparameters(self, params, env="main", win=None, **kwargs):
@@ -146,7 +156,7 @@ class DataLogger(logging.getLoggerClass()):
                       extra=dict(
                           plot_info=plot_info,
                           data=params,
-                          recordtype="hyperparameters")
+                          recordtype=DataLogger.PlotType.HYPERPARAM)
                       )
 
     def video(self, videofile, env="main", win=None, **kwargs):
@@ -166,18 +176,5 @@ class DataLogger(logging.getLoggerClass()):
                       extra=dict(
                           plot_info=plot_info,
                           data=videofile,
-                          recordtype="video")
+                          recordtype=DataLogger.PlotType.VIDEO)
                       )
-
-
-class PlotFilter(logging.Filter):
-    def __init__(self, filtertype, name=""):
-        super().__init__(name=name)
-        self.filtertype = filtertype
-
-    def filter(self, record):
-        try:
-            record.plot_info
-            return record.recordtype == self.filtertype
-        except AttributeError:
-            return False

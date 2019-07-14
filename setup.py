@@ -7,7 +7,7 @@ setup(
     author='Tolga Ok',
     author_email='tolgaokk@gmail.com',
     url='',
-    description='Logging and Monitoring Package',
+    description='Logging And Monitoring Package',
     long_description="",
     license='MIT',
 

@@ -1,12 +1,17 @@
+""" Logging Handlers for visdom
+"""
 import logging
 import torch
 import numpy as np
 import visdom
 from collections import defaultdict
-from .logger import PlotFilter
-from .utils import KeyDefaultdict
-from .utils import SharedDefaultDict
-from .utils import SharedKeyDefaultDict
+
+import logging.handlers as handlers
+from lamp.logger import DataLogger
+from lamp.filters import DataLogFilter
+from lamp.utils import KeyDefaultdict
+from lamp.utils import SharedDefaultDict
+from lamp.utils import SharedKeyDefaultDict
 
 
 class VisdomHandler(logging.Handler):
@@ -81,11 +86,13 @@ class VisdomScalarHandler(VisdomHandler):
                  ip_addr="localhost", port=8097, manager=None):
         super().__init__(level=level, overwrite_window=overwrite_window,
                          ip_addr=ip_addr, port=port, manager=manager)
-        self.addFilter(PlotFilter("scalar"))
+        self.addFilter(DataLogFilter(DataLogger.PlotType.SCALAR))
         if manager:
-            self._default_win_name = SharedKeyDefaultDict(manager,
-                lambda env: self.get_available_name("scalar-1", env)
-            )
+            self._default_win_name = \
+                SharedKeyDefaultDict(manager,
+                                     lambda env: self.get_available_name(
+                                         "scalar-1", env)
+                                     )
             self._last_indexes = SharedDefaultDict(manager, lambda: -1)
         else:
             self._default_win_name = KeyDefaultdict(
@@ -120,11 +127,11 @@ class VisdomScalarHandler(VisdomHandler):
             xtickmin=-6,
             xtickmax=6,
             xlabel='Arbitrary',
-            fillarea=True,
+            fillarea=False,
             # xtickvals=[0, 0.75, 1.6, 2],
-            ytickmin=0,
-            ytickmax=0.5,
-            ytickstep=0.5,
+            # ytickmin=0,
+            # ytickmax=0.5,
+            # ytickstep=0.5,
             ztickmin=0,
             ztickmax=1,
             ztickstep=0.5,
@@ -142,7 +149,7 @@ class VisdomImageHandler(VisdomHandler):
                  ip_addr="localhost", port=8097):
         super().__init__(level=level, overwrite_window=overwrite_window,
                          ip_addr=ip_addr, port=port)
-        self.addFilter(PlotFilter("image"))
+        self.addFilter(DataLogFilter(DataLogger.PlotType.IMAGE))
         self._default_win_name = KeyDefaultdict(
             lambda env: self.get_available_name("image-1", env)
         )
@@ -205,7 +212,7 @@ class VisdomHistHandler(VisdomHandler):
                  ip_addr="localhost", port=8097):
         super().__init__(level=level, overwrite_window=overwrite_window,
                          ip_addr=ip_addr, port=port)
-        self.addFilter(PlotFilter("histogram"))
+        self.addFilter(DataLogFilter(DataLogger.PlotType.HISTOGRAM))
         self._default_win_name = KeyDefaultdict(
             lambda env: self.get_available_name("histogram-1", env)
         )
@@ -235,7 +242,7 @@ class VisdomParameterHandler(VisdomHandler):
                  ip_addr="localhost", port=8097):
         super().__init__(level=level, overwrite_window=overwrite_window,
                          ip_addr=ip_addr, port=port)
-        self.addFilter(PlotFilter("hyperparameters"))
+        self.addFilter(DataLogFilter(DataLogger.PlotType.HYPERPARAM))
         self._default_win_name = KeyDefaultdict(
             lambda env: self.get_available_name("hyperparam-1", env)
         )
@@ -269,7 +276,7 @@ class VisdomVideoHandler(VisdomHandler):
                  ip_addr="localhost", port=8097):
         super().__init__(level=level, overwrite_window=overwrite_window,
                          ip_addr=ip_addr, port=port)
-        self.addFilter(PlotFilter("video"))
+        self.addFilter(DataLogFilter(DataLogger.PlotType.VIDEO))
         self._default_win_name = KeyDefaultdict(
             lambda env: self.get_available_name("video-1", env)
         )

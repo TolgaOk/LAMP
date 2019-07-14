@@ -13,7 +13,7 @@ import torch
 
 def matplothandlers():
     logging.setLoggerClass(DataLogger)
-    my_logger = logging.getLogger("main")
+    my_logger = logging.getLogger(__name__)
 
     handlerscalar = MatplotScalarHandler()
     handlerimage = MatplotImageHandler()
@@ -87,6 +87,6 @@ def multiprocessing_vizdom():
 
 
 if __name__ == "__main__":
-    # vizdomhandlers()
-    # matplothandlers()
-    multiprocessing_vizdom()
+    vizdomhandlers()
+    matplothandlers()
+    # multiprocessing_vizdom()
