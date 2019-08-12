@@ -17,4 +17,7 @@ from lamp.logger import DataLogger
 __all__ = ["DataLogger", "MatplotScalarHandler", "MatplotImageHandler",
            "VisdomScalarHandler", "VisdomImageHandler", "VisdomHistHandler",
            "VisdomParameterHandler"]
+           
 logging.root.manager.setLoggerClass(DataLogger)
+logging.addLevelName(logging.INFO - 5, "DATA")
+logging.DATA = logging.getLevelName("DATA")

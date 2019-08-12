@@ -20,8 +20,11 @@ class NonDataLogFilter(logging.Filter):
         super().__init__(name=name)
 
     def filter(self, record):
-        pass
-        # TODO
+        try:
+            record.plot_info
+            return False
+        except AttributeError:
+            return True
 
 
 class CheckConnection(logging.Filter):

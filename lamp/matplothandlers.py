@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 import logging
 from collections import defaultdict
-from lamp.logger import  DataLogger
+from lamp.logger import DataLogger
 from lamp.filters import DataLogFilter
 import numpy as np
 
@@ -77,7 +77,7 @@ class MatplotImageHandler(MatplotHandler):
         self.plot_kwargs = kwargs
         self.addFilter(DataLogFilter(DataLogger.PlotType.IMAGE))
 
-    def emit(self, record): 
+    def emit(self, record):
         self.buffer.append(record)
 
     def flush(self):

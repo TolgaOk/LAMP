@@ -7,16 +7,15 @@ hyperparameter and video.
 """
 
 import logging
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from enum import Enum, auto
-import torch
 import numpy as np
 
 # [ ] TODO: Log closed windows from previous runs!
 # [ ] TODO: Add more plotting arguments!
 # [ ] TODO: Add default configuration with all plotting handlers!
 # [ ] TODO: Save plots at shutdown if path is given!
-# [ ] TODO: Add safe reliease and acquire statements!
+# [ ] TODO: Add safe release and acquire statements!
 # [ ] TODO: Make filters complete, check for all necessary attributes!
 
 
@@ -35,9 +34,12 @@ class DataLogger(logging.Logger):
         HYPERPARAM = auto()
         VIDEO = auto()
 
-    class DataLog(object):
-        def __init__(self):
-            pass
+    ARRAYTYPES = (np.ndarray,)
+    try:
+        import torch
+        ARRAYTYPES = (torch.Tensor, np.ndarray)
+    except ModuleNotFoundError:
+        pass
 
     def __init__(self, name):
         super().__init__(name)
@@ -55,7 +57,7 @@ class DataLogger(logging.Logger):
             trace: Trace name of the value. There can be multiple
                 traces on the plot. (default "trace-1")
         """
-        level = logging.INFO
+        level = logging.getLevelName("DATA")
         if self.isEnabledFor(level):
             plot_info = dict(env=env, win=win, trace=trace, index=index)
             self._log(level, "Scalar logged!", None,
@@ -79,9 +81,9 @@ class DataLogger(logging.Logger):
             win: Name of the window (default None)
             cmap: Colormap of the 2D images (default "Viridis")
         """
-        level = logging.INFO
+        level = logging.getLevelName("DATA")
         if self.isEnabledFor(level):
-            if not isinstance(image, (torch.Tensor, np.ndarray)):
+            if not isinstance(image, self.ARRAYTYPES):
                 raise TypeError(
                     """Image type: {}, but torch tensor tensor 
                     or numpy array is expected!""".format(type(image))
@@ -121,13 +123,13 @@ class DataLogger(logging.Logger):
         Log multiple values for histogram plotting.
 
         Arguments
-            array: Array or tensor of multiple values.
+            array: Non-empty array or tensor.
             env: Name of the environment for Visdom (default "main")
             win: Name of the window (default None)
         """
-        level = logging.INFO
+        level = logging.getLevelName("DATA")
         if self.isEnabledFor(level):
-            if not isinstance(array, (torch.Tensor, np.ndarray)):
+            if not isinstance(array, self.ARRAYTYPES):
                 raise TypeError(
                     """Tensor type: {}, but torch or numpy array is
                     expected!""".format(type(array))
@@ -149,7 +151,7 @@ class DataLogger(logging.Logger):
             env: Name of the environment for Visdom (default "main")
             win: Name of the window (default None)
         """
-        level = logging.INFO
+        level = logging.getLevelName("DATA")
         if self.isEnabledFor(level):
             plot_info = dict(env=env, win=win)
             self._log(level, "Hyperparameters logged!", None,
@@ -168,7 +170,7 @@ class DataLogger(logging.Logger):
             env: Name of the environment for Visdom (default "main")
             win: Name of the window (default None)
         """
-        level = logging.INFO
+        level = logging.getLevelName("DATA")
         print(videofile)
         if self.isEnabledFor(level):
             plot_info = dict(env=env, win=win)

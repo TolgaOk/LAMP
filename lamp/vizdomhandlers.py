@@ -5,6 +5,7 @@ import torch
 import numpy as np
 import visdom
 from collections import defaultdict
+import socket
 
 import logging.handlers as handlers
 from lamp.logger import DataLogger
@@ -45,8 +46,26 @@ class VisdomHandler(logging.Handler):
         self._emit(record)
 
     def connect(self):
-        server = "http://"+str(self.ip_addr)
-        self.viz = visdom.Visdom(server=server, port=self.port)
+        if self._check_server():
+            print("Server is active, connecting...!", flush=True)
+            server = "http://"+str(self.ip_addr)
+            self.viz = visdom.Visdom(server=server, port=self.port)
+        else:
+            print("Server is not active, no connection!", flush=True)
+
+    def _check_server(self):
+        # This function is taken from the comment of Roulbac to the issue below
+        # https://github.com/facebookresearch/visdom/issues/156
+        # TODO: Test the function with ip address as hostname
+        is_used = False
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.bind((self.ip_addr, self.port))
+        except socket.error:
+            is_used = True
+        finally:
+            s.close()
+        return is_used
 
     def get_available_name(self, name, env):
         if self.overwrite_window:
@@ -121,20 +140,20 @@ class VisdomScalarHandler(VisdomHandler):
             marginright=30,
             marginbottom=80,
             margintop=30,
-            width=800,
-            height=800,
+            width=300,
+            height=300,
             dash="dot",
-            xtickmin=-6,
-            xtickmax=6,
+            # xtickmin=-6,
+            # xtickmax=6,
             xlabel='Arbitrary',
             fillarea=False,
             # xtickvals=[0, 0.75, 1.6, 2],
             # ytickmin=0,
             # ytickmax=0.5,
             # ytickstep=0.5,
-            ztickmin=0,
-            ztickmax=1,
-            ztickstep=0.5,
+            # ztickmin=0,
+            # ztickmax=1,
+            # ztickstep=0.5,
 
         )
         if x is None:
