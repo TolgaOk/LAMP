@@ -3,8 +3,9 @@
 import logging
 
 import matplotlib
-matplotlib.use("TkAgg")
+#matplotlib.use("TkAgg")
 
+from lamp.vizdomhandlers import VisdomScatterHandler
 from lamp.vizdomhandlers import VisdomVideoHandler
 from lamp.vizdomhandlers import VisdomParameterHandler
 from lamp.vizdomhandlers import VisdomHistHandler
@@ -16,7 +17,7 @@ from lamp.logger import DataLogger
 
 __all__ = ["DataLogger", "MatplotScalarHandler", "MatplotImageHandler",
            "VisdomScalarHandler", "VisdomImageHandler", "VisdomHistHandler",
-           "VisdomParameterHandler"]
+           "VisdomParameterHandler", "VisdomScatterHandler"]
            
 logging.root.manager.setLoggerClass(DataLogger)
 logging.addLevelName(logging.INFO - 5, "DATA")

@@ -7,8 +7,9 @@ hyperparameter and video.
 """
 
 import logging
+import threading
 from collections import defaultdict, namedtuple
-from enum import Enum, auto
+from enum import Enum
 import numpy as np
 
 # [ ] TODO: Log closed windows from previous runs!
@@ -17,6 +18,7 @@ import numpy as np
 # [ ] TODO: Save plots at shutdown if path is given!
 # [ ] TODO: Add safe release and acquire statements!
 # [ ] TODO: Make filters complete, check for all necessary attributes!
+# [X] TODO: Removing the dependency "auto" as it is unsupported in python3.5
 
 
 class DataLogger(logging.Logger):
@@ -28,11 +30,12 @@ class DataLogger(logging.Logger):
     either on Visdom or Matplotlib.
     """
     class PlotType(Enum):
-        SCALAR = auto()
-        IMAGE = auto()
-        HISTOGRAM = auto()
-        HYPERPARAM = auto()
-        VIDEO = auto()
+        SCALAR = 1
+        IMAGE = 2
+        HISTOGRAM = 3
+        HYPERPARAM = 4
+        VIDEO = 5
+        SCATTER = 6
 
     ARRAYTYPES = (np.ndarray,)
     try:
@@ -59,7 +62,7 @@ class DataLogger(logging.Logger):
         """
         level = logging.getLevelName("DATA")
         if self.isEnabledFor(level):
-            plot_info = dict(env=env, win=win, trace=trace, index=index)
+            plot_info = dict(env=env, win=win, trace=trace, index=index, **kwargs)
             self._log(level, "Scalar logged!", None,
                       extra=dict(
                           plot_info=plot_info,
@@ -85,7 +88,7 @@ class DataLogger(logging.Logger):
         if self.isEnabledFor(level):
             if not isinstance(image, self.ARRAYTYPES):
                 raise TypeError(
-                    """Image type: {}, but torch tensor tensor 
+                    """Image type: {}, but torch tensor 
                     or numpy array is expected!""".format(type(image))
                 )
             if len(image.shape) == 3:
@@ -179,4 +182,28 @@ class DataLogger(logging.Logger):
                           plot_info=plot_info,
                           data=videofile,
                           recordtype=DataLogger.PlotType.VIDEO)
+                      )
+
+    def scatter(self, value, index=None, env="main",
+               win=None, trace="trace-1", **kwargs):
+        """
+        Log scatter values for both online and offline plotting.
+
+        Arguments
+            value: Value to be logged.
+            index: Coordinate of the value at the x axis (default None)
+            env: Name of the environment for Visdom (default "main")
+            win: Name of the window (default None)
+            trace: Trace name of the value. There can be multiple
+                traces on the plot. (default "trace-1")
+        """
+        level = logging.getLevelName("DATA")
+        if self.isEnabledFor(level):
+            plot_info = dict(env=env, win=win, trace=trace, index=index,
+                             **kwargs)
+            self._log(level, "Scatter logged!", None,
+                      extra=dict(
+                          plot_info=plot_info,
+                          data=value,
+                          recordtype=DataLogger.PlotType.SCATTER)
                       )

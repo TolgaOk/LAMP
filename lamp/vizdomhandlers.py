@@ -42,7 +42,6 @@ class VisdomHandler(logging.Handler):
             if self.overwrite_window:
                 self.viz.close(win, env)
             self.is_win_used[(env, win)] = True
-
         self._emit(record)
 
     def connect(self):
@@ -133,6 +132,7 @@ class VisdomScalarHandler(VisdomHandler):
         env = plot_info["env"]
         trace = plot_info["trace"]
         x = plot_info["index"]
+        xlabel = plot_info["xlabel"]
         y = value
         opts = dict(
             title=win,
@@ -142,10 +142,10 @@ class VisdomScalarHandler(VisdomHandler):
             margintop=30,
             width=300,
             height=300,
-            dash="dot",
+            dash=None,
             # xtickmin=-6,
             # xtickmax=6,
-            xlabel='Arbitrary',
+            xlabel=xlabel,
             fillarea=False,
             # xtickvals=[0, 0.75, 1.6, 2],
             # ytickmin=0,
@@ -310,3 +310,75 @@ class VisdomVideoHandler(VisdomHandler):
         plot_info = record.plot_info
         videofile = record.data
         self.viz.video(videofile=videofile)
+
+
+class VisdomScatterHandler(VisdomHandler):
+
+    def __init__(self, level=logging.NOTSET, overwrite_window=True,
+                 ip_addr="localhost", port=8097, manager=None):
+        super().__init__(level=level, overwrite_window=overwrite_window,
+                         ip_addr=ip_addr, port=port, manager=manager)
+        self.addFilter(DataLogFilter(DataLogger.PlotType.SCATTER))
+        if manager:
+            self._default_win_name = \
+                SharedKeyDefaultDict(manager,
+                                     lambda env: self.get_available_name(
+                                         "scatter-1", env)
+                                     )
+            self._last_indexes = SharedDefaultDict(manager, lambda: -1)
+        else:
+            self._default_win_name = KeyDefaultdict(
+                lambda env: self.get_available_name("scatter-1", env)
+            )
+            self._last_indexes = defaultdict(lambda: -1)
+
+    def _index(self, state):
+        self._last_indexes[state] += 1
+        return self._last_indexes[state]
+
+    def get_default_win_name(self, env):
+        return self._default_win_name[env]
+
+    def _emit(self, record):
+        plot_info = record.plot_info
+        value = record.data
+        win = plot_info["win"]
+        env = plot_info["env"]
+        trace = plot_info["trace"]
+        x = plot_info["index"]
+        y = value
+        xlabel = plot_info["xlabel"]
+        ylabel = plot_info["ylabel"]
+        if xlabel == None:
+            xlabel = ""
+        if ylabel == None:
+            ylabel = ""
+        opts = dict(
+            title=win,
+            marginleft=30,
+            marginright=30,
+            marginbottom=80,
+            markersymbol="circle",
+            margintop=30,
+            width=300,
+            height=300,
+            dash=None,
+            # xtickmin=-6,
+            # xtickmax=6,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            fillarea=False,
+            # xtickvals=[0, 0.75, 1.6, 2],
+            # ytickmin=0,
+            # ytickmax=0.5,
+            # ytickstep=0.5,
+            # ztickmin=0,
+            # ztickmax=1,
+            # ztickstep=0.5,
+
+        )
+        if x is None:
+            x = self._index((env, win, trace))
+        self.viz.scatter(Y=[y], X=[x], win=win, env=env,
+                         update="append", name=trace, opts=opts)
+
