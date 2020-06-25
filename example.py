@@ -33,14 +33,14 @@ def vizdomhandlers():
     logging.setLoggerClass(DataLogger)
     my_logger = logging.getLogger(__name__)
 
-    vizscalarhandler = VisdomScalarHandler(logging.INFO,
+    vizscalarhandler = VisdomScalarHandler(logging.DATA,
                                            overwrite_window=True)
-    vizhisthandler = VisdomHistHandler(logging.DEBUG,
+    vizhisthandler = VisdomHistHandler(logging.DATA,
                                        overwrite_window=True)
 
     my_logger.addHandler(vizscalarhandler)
     my_logger.addHandler(vizhisthandler)
-    my_logger.setLevel(logging.DEBUG)
+    my_logger.setLevel(logging.DATA)
 
     for i in range(10):
         my_logger.scalar(i**2, win="polynomial", trace="x^2")
@@ -65,10 +65,10 @@ def multiprocessing_vizdom():
     my_logger = logging.getLogger(__name__)
 
     vizscalarhandler = VisdomScalarHandler(
-        logging.INFO, overwrite_window=True, manager=manager)
+        logging.DATA, overwrite_window=True, manager=manager)
 
     my_logger.addHandler(vizscalarhandler)
-    my_logger.setLevel(logging.DEBUG)
+    my_logger.setLevel(logging.DATA)
 
     def func(logger, j):
         for i in np.linspace(-5, 5, 200):
@@ -88,5 +88,5 @@ def multiprocessing_vizdom():
 
 if __name__ == "__main__":
     vizdomhandlers()
-    matplothandlers()
+    # matplothandlers()
     # multiprocessing_vizdom()
